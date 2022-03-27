@@ -1,9 +1,5 @@
 resource "aws_s3_bucket" "data_bucket" {
   bucket = var.dataset_bucket_name
-
-  tags = {
-    Project     = "Athena Data Analysis"
-  }
 }
 
 resource "aws_s3_bucket_acl" "data_bucket" {
@@ -36,28 +32,16 @@ resource "aws_s3_object" "gnad_train" {
   bucket = aws_s3_bucket.data_bucket.id
   key    = "gnad/train/train.csv"
   source = "../data/gnad/train.csv"
-
-  tags = {
-    Project     = "Athena Data Analysis"
-  }
 }
 
 resource "aws_s3_object" "gnad_test" {
   bucket = aws_s3_bucket.data_bucket.id
   key    = "gnad/test/test.csv"
   source = "../data/gnad/test.csv"
-
-  tags = {
-    Project     = "Athena Data Analysis"
-  }
 }
 
 resource "aws_s3_bucket" "athena_results_bucket" {
   bucket = var.athena_results_bucket_name
-
-  tags = {
-    Project     = "Athena Data Analysis"
-  }
 }
 
 resource "aws_s3_bucket_acl" "athena_results_bucket" {
@@ -86,4 +70,8 @@ resource "aws_s3_bucket_public_access_block" "athena_results_bucket" {
   restrict_public_buckets = true
 }
 
+output "datasets_bucket" {
+  description = "Bucket reference"
+  value       = "s3://${aws_s3_bucket.data_bucket.id}"
+}
 
