@@ -15,3 +15,10 @@ variable "athena_results_bucket_name" {
   type        = string
   default     = "tft-athena-query-results"
 }
+
+variable "lambda_bucket_name" {
+  description = "Name of the S3 bucket that holds the lambda functions."
+  type        = string
+  default     = "tft-lambda-functions"
+}
+
