@@ -6,9 +6,14 @@
 
 * use serverless architecture to reduce costs (pay per use).
 * use infrastructure as code (IaC) to automate setup.
-* industrial-strength setup with security and monitoring.
+* industrial-strength setup with authentical, security and monitoring.
+* Integrate with CI/CD.
 
-## Implementation Choices:
+## Infrastructure Overview
+
+TODO: include graphic
+
+## Implementation Choices
 
 * Terraform
   * declarative definition of (multi-) cloud infrastructure.
@@ -21,6 +26,8 @@
 * API Gateway
   * Make Lambda function available for client applications
 
-## Infrastructure Overview
+## Other Tools
 
-TODO: include graphic
+* [Checkov](https://github.com/bridgecrewio/checkov)
+* Github Actions
+* Auth0
