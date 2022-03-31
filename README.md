@@ -1,6 +1,6 @@
 # Serverless Data Analysis on AWS
 
-**Goal:** Store machine learning datasets in S3 and make them accessible through an API.
+**Goal:** Store CSV datasets in S3 and make them accessible through an API.
 
 ## Requirements
 
