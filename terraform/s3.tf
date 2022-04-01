@@ -44,6 +44,18 @@ resource "aws_s3_bucket" "athena_results_bucket" {
   bucket = var.athena_results_bucket_name
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "athena_results_bucket" {
+  bucket = aws_s3_bucket.athena_results_bucket.id
+
+  rule {
+    id = "athena_results_expiration"
+    status = "Enabled"
+    expiration {
+      days = 7
+    }
+  }
+}
+
 resource "aws_s3_bucket_acl" "athena_results_bucket" {
   bucket = aws_s3_bucket.athena_results_bucket.id
   acl    = "private"

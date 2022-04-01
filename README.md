@@ -6,8 +6,9 @@
 
 * use serverless architecture to reduce costs (pay per use).
 * use infrastructure as code (IaC) to automate setup.
-* industrial-strength setup with authentical, security and monitoring.
-* Integrate with CI/CD.
+* follow cloud best practices, like [AWS Well Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/framework/wellarchitected-framework.pdf)
+* industrial-strength setup with authentication, security and monitoring.
+* integrate with CI/CD.
 
 ## Infrastructure Overview
 
