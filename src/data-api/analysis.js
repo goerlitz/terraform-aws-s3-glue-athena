@@ -27,8 +27,20 @@ exports.handler = async event => {
 	try {
 		let results = await athenaExpress.query(sqlQuery);
         console.log("results:", results)
-		return results;
+		return {
+            statusCode: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: results,
+            }),
+        };
 	} catch (error) {
         console.log("error", error)
+        return {
+            statusCode: 500,
+            body: JSON.stringify('Execution failed! ' + error ),
+        };
 	}
 };
