@@ -5,7 +5,7 @@ data "archive_file" "lambda_hello_world" {
   type = "zip"
 
   source_dir  = "${path.module}/../src/data-api"
-  output_path = "${path.module}/hello-world.zip"
+  output_path = "${path.module}/data-api.zip"
 }
 
 resource "aws_s3_object" "lambda_hello_world" {
@@ -15,26 +15,6 @@ resource "aws_s3_object" "lambda_hello_world" {
   source = data.archive_file.lambda_hello_world.output_path
 
   etag = filemd5(data.archive_file.lambda_hello_world.output_path)
-}
-
-resource "aws_lambda_function" "hello_world" {
-  function_name = "HelloWorld"
-
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
-  s3_key    = aws_s3_object.lambda_hello_world.key
-
-  runtime = "nodejs14.x"
-  handler = "hello.handler"
-
-  source_code_hash = data.archive_file.lambda_hello_world.output_base64sha256
-
-  role = aws_iam_role.lambda_exec.arn
-}
-
-resource "aws_cloudwatch_log_group" "hello_world" {
-  name = "/aws/lambda/${aws_lambda_function.hello_world.function_name}"
-
-  retention_in_days = 30
 }
 
 resource "aws_lambda_function" "inspect_data" {
