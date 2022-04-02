@@ -46,6 +46,7 @@ resource "aws_apigatewayv2_route" "inspect_data" {
 resource "aws_cloudwatch_log_group" "api_gw" {
   name = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
 
+  kms_key_id = aws_kms_key.s3_key.arn  # use specific key - otherwise default aws log encryption
   retention_in_days = 30
 }
 

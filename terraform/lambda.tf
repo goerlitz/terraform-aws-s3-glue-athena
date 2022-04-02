@@ -35,6 +35,7 @@ resource "aws_lambda_function" "inspect_data" {
 resource "aws_cloudwatch_log_group" "inspect_data" {
   name = "/aws/lambda/${aws_lambda_function.inspect_data.function_name}"
 
+  kms_key_id = aws_kms_key.s3_key.arn  # use specific key - otherwise default aws log encryption
   retention_in_days = 30
 }
 
