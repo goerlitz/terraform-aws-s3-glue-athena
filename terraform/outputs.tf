@@ -20,6 +20,12 @@ output "inspect_data_func_name" {
   value = aws_lambda_function.inspect_data.function_name
 }
 
+output "lambda_download" {
+  description = "Name of the Lambda function."
+
+  value = aws_lambda_function.download.function_name
+}
+
 output "lambda_policy" {
 #  value = data.aws_iam_policy_document.example.json
   value = aws_iam_role_policy.lambda_exec_policy.policy
