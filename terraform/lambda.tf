@@ -27,16 +27,10 @@ data "archive_file" "lambda_data_api" {
 }
 
 resource "aws_s3_object" "lambda_dist" {
-  # depends_on = [archive_file.lambda_data_api]
-
   bucket = aws_s3_bucket.lambda_bucket.id
   key    = "data-api.zip"
   source = data.archive_file.lambda_data_api.output_path
-  # etag = filemd5(data.archive_file.lambda_data_api.output_path)
   etag = data.archive_file.lambda_data_api.output_md5
-
-  # source = "${path.module}/../dist-aws/lambda.zip"
-  # etag = filemd5("${path.module}/../dist-aws/lambda.zip")
 }
 
 resource "aws_lambda_function" "inspect_data" {
