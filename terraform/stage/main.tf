@@ -15,6 +15,14 @@ terraform {
   }
 
   required_version = ">= 0.14.9"
+
+  backend "s3" {
+    bucket         = "tft-terraform-state"
+    key            = "global/s3/terraform.tfstate"
+    region         = "eu-central-1"
+    dynamodb_table = "tft-terraform-state-locks"
+    encrypt        = true
+  }
 }
 
 provider "aws" {

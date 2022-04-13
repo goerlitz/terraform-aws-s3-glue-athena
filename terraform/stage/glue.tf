@@ -1,4 +1,6 @@
 resource "aws_glue_catalog_database" "datasets_db" {
+  # underscores (_) are the only special characters that Athena supports in database, table, view, and column names.
+  # https://aws.amazon.com/premiumsupport/knowledge-center/parse-exception-missing-eof-athena/
   name = "datasets_db"
 }
 
@@ -79,4 +81,3 @@ resource "aws_glue_catalog_table" "gnad_test" {
     }
   }
 }
-

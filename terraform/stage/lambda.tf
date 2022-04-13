@@ -9,7 +9,7 @@ resource "null_resource" "lambda_zip_prep" {
 
   provisioner "local-exec" {
     command = join(" && ", [
-      "rm -r ${path.module}/../dist/data-api/node_modules",
+      "rm -rf ${path.module}/../dist/data-api/node_modules",
       "cp -r ${path.module}/../node_modules ${path.module}/../dist/data-api/node_modules"
       # "zip -rq ${path.module}/../dist-aws/lambda.zip ${path.module}/../node_modules",
       # "zip -jq ${path.module}/../dist-aws/lambda.zip ${path.module}/../dist/data-api/*.js",
