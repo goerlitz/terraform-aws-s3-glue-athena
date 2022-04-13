@@ -113,7 +113,10 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
         Resource = [ aws_s3_bucket.data_bucket.arn ]
       },
       {
-        Action = [ "s3:GetObject", ]
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+        ]
         Effect   = "Allow"
         Resource = [ "${aws_s3_bucket.data_bucket.arn}/*" ]
       },
