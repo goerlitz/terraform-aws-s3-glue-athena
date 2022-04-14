@@ -4,6 +4,20 @@ resource "aws_glue_catalog_database" "datasets_db" {
   name = "datasets_db"
 }
 
+# Upload and configure a training and a test dataset
+
+resource "aws_s3_object" "gnad_train" {
+  bucket = data.terraform_remote_state.s3.outputs.datasets_bucket_name
+  key    = "gnad/train/train.csv"
+  source = "../../../../data/gnad/train.csv"
+}
+
+resource "aws_s3_object" "gnad_test" {
+  bucket = data.terraform_remote_state.s3.outputs.datasets_bucket_name
+  key    = "gnad/test/test.csv"
+  source = "../../../../data/gnad/test.csv"
+}
+
 resource "aws_glue_catalog_table" "gnad_train" {
   database_name = aws_glue_catalog_database.datasets_db.name
   name          = "gnad_train"
@@ -16,7 +30,7 @@ resource "aws_glue_catalog_table" "gnad_train" {
   }
 
   storage_descriptor {
-    location      = "s3://${aws_s3_bucket.data_bucket.id}/gnad/train"
+    location      = "s3://${data.terraform_remote_state.s3.outputs.datasets_bucket_name}/gnad/train"
     input_format  = "org.apache.hadoop.mapred.TextInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat"
 
@@ -55,7 +69,7 @@ resource "aws_glue_catalog_table" "gnad_test" {
   }
 
   storage_descriptor {
-    location      = "s3://${aws_s3_bucket.data_bucket.id}/gnad/test"
+    location      = "s3://${data.terraform_remote_state.s3.outputs.datasets_bucket_name}/gnad/test"
     input_format  = "org.apache.hadoop.mapred.TextInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat"
 

@@ -49,7 +49,7 @@ resource "aws_apigatewayv2_route" "download" {
 resource "aws_apigatewayv2_stage" "lambda" {
   api_id = aws_apigatewayv2_api.lambda.id
 
-  name        = "test"
+  name        = "$default"
   auto_deploy = true
 
   access_log_settings {
@@ -74,7 +74,7 @@ resource "aws_apigatewayv2_stage" "lambda" {
 resource "aws_cloudwatch_log_group" "api_gw" {
   name = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
 
-  kms_key_id = aws_kms_key.s3_key.arn  # use specific key - otherwise default aws log encryption
+  kms_key_id = data.terraform_remote_state.s3.outputs.s3_kms_key_arn  # use specific key - otherwise default aws log encryption
   retention_in_days = 30
 }
 

@@ -6,14 +6,13 @@ resource "aws_athena_workgroup" "athena_workgroup" {
     publish_cloudwatch_metrics_enabled = true
 
     result_configuration {
-      output_location = "s3://${aws_s3_bucket.athena_results_bucket.id}/output/"
+      output_location = "s3://${data.terraform_remote_state.s3.outputs.athena_results_bucket_name}/output/"
 
       # encrypt query results in this workgroup
       encryption_configuration {
         encryption_option = "SSE_KMS"
-        kms_key_arn       = aws_kms_key.s3_key.arn  # KMS master key to use
+        kms_key_arn       = "${data.terraform_remote_state.s3.outputs.s3_kms_key_arn}"  # KMS master key to use
       }
     }
   }
 }
-

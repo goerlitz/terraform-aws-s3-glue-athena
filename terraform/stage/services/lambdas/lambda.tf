@@ -9,10 +9,8 @@ resource "null_resource" "lambda_zip_prep" {
 
   provisioner "local-exec" {
     command = join(" && ", [
-      "rm -rf ${path.module}/../dist/data-api/node_modules",
-      "cp -r ${path.module}/../node_modules ${path.module}/../dist/data-api/node_modules"
-      # "zip -rq ${path.module}/../dist-aws/lambda.zip ${path.module}/../node_modules",
-      # "zip -jq ${path.module}/../dist-aws/lambda.zip ${path.module}/../dist/data-api/*.js",
+      "rm -rf ${path.module}/../../../../dist/data-api/node_modules",
+      "cp -r ${path.module}/../../../../node_modules ${path.module}/../../../../dist/data-api/node_modules"
     ])
   }
 }
@@ -20,14 +18,14 @@ resource "null_resource" "lambda_zip_prep" {
 data "archive_file" "lambda_data_api" {
   type = "zip"
 
-  source_dir  = "${path.module}/../dist/data-api"
-  output_path = "${path.module}/../dist-aws/data-api.zip"
+  source_dir  = "${path.module}/../../../../dist/data-api"
+  output_path = "${path.module}/../../../../dist-aws/data-api.zip"
 
   depends_on = [null_resource.lambda_zip_prep]
 }
 
 resource "aws_s3_object" "lambda_dist" {
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket = data.terraform_remote_state.s3.outputs.lambda_bucket_name
   key    = "data-api.zip"
   source = data.archive_file.lambda_data_api.output_path
   etag = data.archive_file.lambda_data_api.output_md5
@@ -36,7 +34,7 @@ resource "aws_s3_object" "lambda_dist" {
 resource "aws_lambda_function" "inspect_data" {
   function_name = "InspectData"
 
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_bucket = data.terraform_remote_state.s3.outputs.lambda_bucket_name #aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_dist.key
 
   runtime = "nodejs14.x"
@@ -52,14 +50,14 @@ resource "aws_lambda_function" "inspect_data" {
 resource "aws_cloudwatch_log_group" "inspect_data" {
   name = "/aws/lambda/${aws_lambda_function.inspect_data.function_name}"
 
-  kms_key_id = aws_kms_key.s3_key.arn  # use specific key - otherwise default aws log encryption
+  kms_key_id = data.terraform_remote_state.s3.outputs.s3_kms_key_arn  # use specific key - otherwise default aws log encryption
   retention_in_days = 30
 }
 
 resource "aws_lambda_function" "download" {
   function_name = "Download"
 
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_bucket = data.terraform_remote_state.s3.outputs.lambda_bucket_name
   s3_key    = aws_s3_object.lambda_dist.key
 
   runtime = "nodejs14.x"
@@ -75,7 +73,7 @@ resource "aws_lambda_function" "download" {
 resource "aws_cloudwatch_log_group" "download" {
   name = "/aws/lambda/${aws_lambda_function.download.function_name}"
 
-  kms_key_id = aws_kms_key.s3_key.arn  # use specific key - otherwise default aws log encryption
+  kms_key_id = data.terraform_remote_state.s3.outputs.s3_kms_key_arn  # use specific key - otherwise default aws log encryption
   retention_in_days = 30
 }
 
@@ -100,6 +98,14 @@ resource "aws_iam_role" "lambda_exec" {
   ]
 }
 
+# allow lambda to use the kms key, e.g. for writing to athena results bucket
+resource "aws_kms_grant" "kms_lambda" {
+  name              = "kms-lambda-grant"
+  key_id            = data.terraform_remote_state.s3.outputs.s3_kms_key_name
+  grantee_principal = aws_iam_role.lambda_exec.arn
+  operations        = ["Encrypt", "Decrypt", "GenerateDataKey"]
+}
+
 resource "aws_iam_role_policy" "lambda_exec_policy" {
   name = "lambda_exec_policy"
   role = aws_iam_role.lambda_exec.id
@@ -110,7 +116,7 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
       {
         Action = [ "s3:ListBucket" ]
         Effect   = "Allow"
-        Resource = [ aws_s3_bucket.data_bucket.arn ]
+        Resource = [ data.terraform_remote_state.s3.outputs.datasets_bucket_arn ]
       },
       {
         Action = [
@@ -118,7 +124,7 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
           "s3:PutObject",
         ]
         Effect   = "Allow"
-        Resource = [ "${aws_s3_bucket.data_bucket.arn}/*" ]
+        Resource = [ "${data.terraform_remote_state.s3.outputs.datasets_bucket_arn}/*" ]
       },
       {
         Action = [
@@ -128,7 +134,7 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
         ]
         Effect   = "Allow"
         Resource = [
-          aws_s3_bucket.athena_results_bucket.arn
+          data.terraform_remote_state.s3.outputs.athena_results_bucket_arn
         ]
       },
       {
@@ -140,7 +146,7 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
         ]
         Effect   = "Allow"
         Resource = [
-          "${aws_s3_bucket.athena_results_bucket.arn}/output/*"
+          "${data.terraform_remote_state.s3.outputs.athena_results_bucket_arn}/output/*"
         ]
       },
       {
@@ -150,8 +156,8 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
         Effect   = "Allow"
         Resource = [
           "arn:aws:glue:${var.region}:${data.aws_caller_identity.current.account_id}:catalog",
-          aws_glue_catalog_database.datasets_db.arn,
-          "arn:aws:glue:${var.region}:${data.aws_caller_identity.current.account_id}:table/${aws_glue_catalog_database.datasets_db.name}/*",
+          data.terraform_remote_state.athena.outputs.glue_catalog_database_arn,
+          "${replace(data.terraform_remote_state.athena.outputs.glue_catalog_database_arn, ":database/", ":table/")}/*",
         ]
       },
       {
@@ -163,7 +169,7 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
         ]
         Effect   = "Allow"
         Resource = [
-          aws_athena_workgroup.athena_workgroup.arn
+          data.terraform_remote_state.athena.outputs.athena_workgroup_arn
         ]
       },
     ]
