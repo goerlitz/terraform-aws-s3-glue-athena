@@ -4,7 +4,7 @@
 resource "null_resource" "lambda_zip_prep" {
 
   triggers = {
-    always_run = "${timestamp()}"
+    always_run = timestamp()
   }
 
   provisioner "local-exec" {
@@ -31,50 +31,36 @@ resource "aws_s3_object" "lambda_dist" {
   etag = data.archive_file.lambda_data_api.output_md5
 }
 
-resource "aws_lambda_function" "inspect_data" {
-  function_name = "InspectData"
+module "lambda_api_inspect" {
+  source = "../../../modules/lambda_api_gateway"
 
-  s3_bucket = data.terraform_remote_state.s3.outputs.lambda_bucket_name #aws_s3_bucket.lambda_bucket.id
-  s3_key    = aws_s3_object.lambda_dist.key
+  function_handler     = "analysis.handler"
+  function_name        = "Inspect"
+  function_url         = "POST /inspect"
+  lambda_iam_role_arn  = aws_iam_role.lambda_exec.arn
+  s3_kms_key_arn       = data.terraform_remote_state.s3.outputs.s3_kms_key_arn
+  source_code_bucket   = data.terraform_remote_state.s3.outputs.lambda_bucket_name
+  source_code_key      = aws_s3_object.lambda_dist.key
+  source_code_hash     = data.archive_file.lambda_data_api.output_base64sha256
 
-  runtime = "nodejs14.x"
-  handler = "analysis.handler"
-  timeout = 30
-  reserved_concurrent_executions = -1
-
-  source_code_hash = data.archive_file.lambda_data_api.output_base64sha256
-
-  role = aws_iam_role.lambda_exec.arn
+  lambda_api_id        =  aws_apigatewayv2_api.lambda_api.id
+  lambda_api_exec_arn  =  aws_apigatewayv2_api.lambda_api.execution_arn
 }
 
-resource "aws_cloudwatch_log_group" "inspect_data" {
-  name = "/aws/lambda/${aws_lambda_function.inspect_data.function_name}"
+module "lambda_api_download" {
+  source = "../../../modules/lambda_api_gateway"
 
-  kms_key_id = data.terraform_remote_state.s3.outputs.s3_kms_key_arn  # use specific key - otherwise default aws log encryption
-  retention_in_days = 30
-}
+  function_handler     = "download.handler"
+  function_name        = "Download"
+  function_url         = "POST /download"
+  lambda_iam_role_arn  = aws_iam_role.lambda_exec.arn
+  s3_kms_key_arn       = data.terraform_remote_state.s3.outputs.s3_kms_key_arn
+  source_code_bucket   = data.terraform_remote_state.s3.outputs.lambda_bucket_name
+  source_code_key      = aws_s3_object.lambda_dist.key
+  source_code_hash     = data.archive_file.lambda_data_api.output_base64sha256
 
-resource "aws_lambda_function" "download" {
-  function_name = "Download"
-
-  s3_bucket = data.terraform_remote_state.s3.outputs.lambda_bucket_name
-  s3_key    = aws_s3_object.lambda_dist.key
-
-  runtime = "nodejs14.x"
-  handler = "download.handler"
-  timeout = 30
-  reserved_concurrent_executions = -1
-
-  source_code_hash = data.archive_file.lambda_data_api.output_base64sha256
-
-  role = aws_iam_role.lambda_exec.arn
-}
-
-resource "aws_cloudwatch_log_group" "download" {
-  name = "/aws/lambda/${aws_lambda_function.download.function_name}"
-
-  kms_key_id = data.terraform_remote_state.s3.outputs.s3_kms_key_arn  # use specific key - otherwise default aws log encryption
-  retention_in_days = 30
+  lambda_api_id        =  aws_apigatewayv2_api.lambda_api.id
+  lambda_api_exec_arn  =  aws_apigatewayv2_api.lambda_api.execution_arn
 }
 
 resource "aws_iam_role" "lambda_exec" {
