@@ -37,3 +37,18 @@ output "s3_kms_key_arn" {
   description = "ARN of the kms key used to encrypt the buckets"
   value = aws_kms_key.s3_key.arn
 }
+
+output "dynamodb_datasets_table_name" {
+  description = "Name of the datasets table."
+  value = aws_dynamodb_table.datasets.name
+}
+
+output "dynamodb_datasets_table_hash_key" {
+  description = "Hash key of the datasets table."
+  value = aws_dynamodb_table.datasets.hash_key
+}
+
+output "dynamodb_datasets_table_range_key" {
+  description = "Range key (sort key) of the datasets table."
+  value = aws_dynamodb_table.datasets.range_key
+}

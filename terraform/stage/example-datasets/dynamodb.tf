@@ -7,9 +7,9 @@ resource "time_static" "created_at_imdb" {}
 resource "time_static" "created_at_mnist" {}
 
 resource "aws_dynamodb_table_item" "dataset_gnad" {
-  table_name = aws_dynamodb_table.datasets.name
-  hash_key   = aws_dynamodb_table.datasets.hash_key
-  range_key  = aws_dynamodb_table.datasets.range_key
+  table_name = data.terraform_remote_state.s3.outputs.dynamodb_datasets_table_name
+  hash_key   = data.terraform_remote_state.s3.outputs.dynamodb_datasets_table_hash_key
+  range_key  = data.terraform_remote_state.s3.outputs.dynamodb_datasets_table_range_key
 
   item = jsonencode({
     user_id = { S = random_uuid.user_id.result }
@@ -34,9 +34,9 @@ resource "aws_dynamodb_table_item" "dataset_gnad" {
 }
 
 resource "aws_dynamodb_table_item" "dataset_imdb" {
-  table_name = aws_dynamodb_table.datasets.name
-  hash_key   = aws_dynamodb_table.datasets.hash_key
-  range_key  = aws_dynamodb_table.datasets.range_key
+  table_name = data.terraform_remote_state.s3.outputs.dynamodb_datasets_table_name
+  hash_key   = data.terraform_remote_state.s3.outputs.dynamodb_datasets_table_hash_key
+  range_key  = data.terraform_remote_state.s3.outputs.dynamodb_datasets_table_range_key
 
   item = jsonencode({
     user_id = { S = random_uuid.user_id.result }
@@ -61,9 +61,9 @@ resource "aws_dynamodb_table_item" "dataset_imdb" {
 }
 
 resource "aws_dynamodb_table_item" "dataset_mnist" {
-  table_name = aws_dynamodb_table.datasets.name
-  hash_key   = aws_dynamodb_table.datasets.hash_key
-  range_key  = aws_dynamodb_table.datasets.range_key
+  table_name = data.terraform_remote_state.s3.outputs.dynamodb_datasets_table_name
+  hash_key   = data.terraform_remote_state.s3.outputs.dynamodb_datasets_table_hash_key
+  range_key  = data.terraform_remote_state.s3.outputs.dynamodb_datasets_table_range_key
 
   item = jsonencode({
     user_id = { S = random_uuid.user_id.result }
