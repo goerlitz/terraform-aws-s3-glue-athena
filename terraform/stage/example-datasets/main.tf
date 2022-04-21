@@ -40,7 +40,7 @@ data "terraform_remote_state" "s3" {
   backend = "s3"
   config = {
     bucket = "tft-terraform-state"
-    key    = "stage/data-stores/terraform.tfstate"
+    key    = "stage/data-storage/terraform.tfstate"
     region = "eu-central-1"
   }
 }
