@@ -1,8 +1,15 @@
-# Create a custom managed key to encrypt s3 buckets.
-# Important: lambda functions need to be granted access to use the key to be able to store data in excrypted buckets.
+# One key to rule them all!
+# Create a custom managed key to encrypt s3 buckets, dynamodb, cloudwatch and more.
+# Important: lambda functions need to be granted access to use the key to be able to store data in encrypted buckets.
 
 # https://docs.aws.amazon.com/kms/latest/developerguide/key-policy-default.html#key-policy-default-allow-root-enable-iam
 # https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk
+
+
+resource "aws_kms_alias" "s3_key_alias" {
+  name          = "alias/s3_key"
+  target_key_id = aws_kms_key.s3_key.key_id
+}
 
 resource "aws_kms_key" "s3_key" {
   description             = "This key is used to encrypt s3 bucket objects"
@@ -24,7 +31,7 @@ resource "aws_kms_key" "s3_key" {
         Resource = "*"
       },
 
-      # allow key usage for CloudWatch encryption (all log-group names)
+      # allow key usage for CloudWatch encryption (all log-group names in account and region)
       # https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html
       {
         Effect = "Allow",
@@ -47,9 +54,4 @@ resource "aws_kms_key" "s3_key" {
       }
     ]
   })
-}
-
-resource "aws_kms_alias" "s3_key_alias" {
-  name          = "alias/s3_key"
-  target_key_id = aws_kms_key.s3_key.key_id
 }
