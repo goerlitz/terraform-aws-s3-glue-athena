@@ -40,3 +40,28 @@ resource "aws_s3_bucket_lifecycle_configuration" "private_bucket" {
     }
   }
 }
+
+resource "aws_s3_bucket_policy" "private_bucket_policy" {
+  bucket = aws_s3_bucket.private_bucket.id
+  policy = jsonencode({
+    Version   = "2012-10-17"
+    Statement = [
+      { # s3-bucket-ssl-requests-only rule
+        # https://aws.amazon.com/premiumsupport/knowledge-center/s3-bucket-policy-for-config-rule/
+        Sid: "AllowSSLRequestsOnly",
+        Action: "s3:*",
+        Effect: "Deny",
+        Resource: [
+          aws_s3_bucket.private_bucket.arn,
+          "${aws_s3_bucket.private_bucket.arn}/*",
+        ],
+        Condition: {
+          Bool: {
+            "aws:SecureTransport": "false"
+          }
+        },
+        Principal: "*"
+      }
+    ]
+  })
+}
