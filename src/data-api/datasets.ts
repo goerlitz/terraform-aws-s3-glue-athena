@@ -1,32 +1,28 @@
-// Inspired by
-// https://futurestud.io/tutorials/node-js-how-to-download-a-file
-// test with:
-// node -e 'console.log(require("./dist/data-api/download").default({httpMethod: "POST", body: "{\"url\": \"https://raw.githubusercontent.com/tblock/10kGNAD/master/test.csv\", \"filename\": \"test.csv\"}"}));'
-// curl -X POST -H "Content-Type: application/json" -d '{"url": "https://raw.githubusercon/10kGNAD/master/test.csv", "filename": "test.csv"}' "$(terraform output -raw base_url)/download"
-
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 
 const ddbClient = new DynamoDBClient({ region: "eu-central-1" });
+const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   const params = {
+    TableName: "tft-datasets",
     KeyConditionExpression: "user_id = :u",
     FilterExpression: "contains (dataset_type, :type)",
     ExpressionAttributeValues: {
-      ":u": { S: "1174d07a-cf74-b5a4-403b-3b6c4247d6ae" },
-      ":type": { S: "text" },
+      ":u": "1174d07a-cf74-b5a4-403b-3b6c4247d6ae",
+      ":type": "text",
     },
     ProjectionExpression: "user_id, dataset_id, dataset_name, dataset_slug",
-    TableName: "tft-datasets",
   };
 
   try {
-    const data = await ddbClient.send(new QueryCommand(params));
-    data.Items.forEach( (element, index, array) => {
-      console.log(element, index, array);
+    const data = await ddbDocClient.send(new QueryCommand(params));
+    data.Items.forEach((element, index) => {
+      console.log(index, element, index);
     });
     return {
       statusCode: 200,
@@ -36,7 +32,7 @@ export const handler = async (
     console.error(err);
     return {
       statusCode: 500,
-      body: JSON.stringify({message: "Server Error"}),
+      body: JSON.stringify({ message: `Server Error: ${err}` }),
     };
   }
 };

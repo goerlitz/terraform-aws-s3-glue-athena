@@ -5,10 +5,11 @@
     "apply": "cd terraform; terraform apply"
   },
   "dependencies": {
-    "@aws-sdk/client-athena": "^3.67.0",
+    "@aws-sdk/client-athena": "^3.75.0",
     "@aws-sdk/client-dynamodb": "^3.75.0",
-    "@aws-sdk/client-s3": "^3.67.0",
-    "@aws-sdk/lib-storage": "^3.67.0",
+    "@aws-sdk/client-s3": "^3.75.0",
+    "@aws-sdk/lib-dynamodb": "^3.75.0",
+    "@aws-sdk/lib-storage": "^3.75.0",
     "athena-express": "^7.1.5",
     "aws-sdk": "^2.1108.0",
     "axios": "^0.26.1"

@@ -5,8 +5,9 @@ resource "null_resource" "lambda_zip_prep" {
 
   triggers = {
     # for i in $(find dist -maxdepth 2 -type f | sort); do md5sum "${i}"; done | md5sum
-    # always_run = timestamp()
-    dir_sha1 = sha1(join("", [for f in fileset("dist", "*"): filesha1(f)]))
+     always_run = timestamp()
+    # https://stackoverflow.com/questions/51138667/can-terraform-watch-a-directory-for-changes
+#    dir_sha1 = sha1(join("", [for f in fileset("dist", "*"): filesha1(f)]))
   }
 
   provisioner "local-exec" {
