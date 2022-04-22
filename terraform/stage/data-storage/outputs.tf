@@ -38,6 +38,11 @@ output "s3_kms_key_arn" {
   value = aws_kms_key.s3_key.arn
 }
 
+output "dynamodb_datasets_table_arn" {
+  description = "Name of the datasets table."
+  value = aws_dynamodb_table.datasets.arn
+}
+
 output "dynamodb_datasets_table_name" {
   description = "Name of the datasets table."
   value = aws_dynamodb_table.datasets.name
