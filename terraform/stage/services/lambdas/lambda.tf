@@ -1,30 +1,30 @@
 # https://aws.amazon.com/premiumsupport/knowledge-center/access-denied-athena/
 # https://aws.amazon.com/premiumsupport/knowledge-center/athena-output-bucket-error/
 
-resource "null_resource" "lambda_zip_prep" {
-
-  triggers = {
-    # for i in $(find dist -maxdepth 2 -type f | sort); do md5sum "${i}"; done | md5sum
-     always_run = timestamp()
-    # https://stackoverflow.com/questions/51138667/can-terraform-watch-a-directory-for-changes
-#    dir_sha1 = sha1(join("", [for f in fileset("dist", "*"): filesha1(f)]))
-  }
-
-  provisioner "local-exec" {
-    command = join(" && ", [
-      "rm -rf ${path.module}/../../../../dist/data-api/node_modules",
-      "cp -r ${path.module}/../../../../node_modules ${path.module}/../../../../dist/data-api/node_modules"
-    ])
-  }
-}
+#resource "null_resource" "lambda_zip_prep" {
+#
+#  triggers = {
+#    # for i in $(find dist -maxdepth 2 -type f | sort); do md5sum "${i}"; done | md5sum
+#     always_run = timestamp()
+#    # https://stackoverflow.com/questions/51138667/can-terraform-watch-a-directory-for-changes
+##    dir_sha1 = sha1(join("", [for f in fileset("dist", "*"): filesha1(f)]))
+#  }
+#
+#  provisioner "local-exec" {
+#    command = join(" && ", [
+#      "rm -rf ${path.module}/../../../../dist/data-api/node_modules",
+#      "cp -r ${path.module}/../../../../node_modules ${path.module}/../../../../dist/data-api/node_modules"
+#    ])
+#  }
+#}
 
 data "archive_file" "lambda_data_api" {
   type = "zip"
 
-  source_dir  = "${path.module}/../../../../dist/data-api"
+  source_dir  = "${path.module}/../../../../build"
   output_path = "${path.module}/../../../../dist-aws/data-api.zip"
 
-  depends_on = [null_resource.lambda_zip_prep]
+#  depends_on = [null_resource.lambda_zip_prep]
 }
 
 resource "aws_s3_object" "lambda_dist" {

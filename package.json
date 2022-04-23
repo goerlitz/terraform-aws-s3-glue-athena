@@ -1,8 +1,10 @@
 {
   "scripts": {
     "compile": "tsc",
-    "plan": "cd terraform; terraform plan",
-    "apply": "cd terraform; terraform apply"
+    "build": "tsc && cross-env TS_NODE_PROJECT=\"tsconfig.json\" webpack --config webpack.config.ts",
+    "deploy": "npm run build && npm run apply-lambdas",
+    "plan-lambdas": "terraform -chdir=terraform/stage/services/lambdas plan",
+    "apply-lambdas": "terraform -chdir=terraform/stage/services/lambdas apply"
   },
   "dependencies": {
     "@aws-sdk/client-athena": "^3.75.0",
@@ -17,14 +19,19 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.93",
     "@types/node": "^17.0.23",
+    "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.13.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^2.7.1",
     "eslint-plugin-import": "^2.26.0",
     "prettier": "2.6.2",
-    "typescript": "^4.6.3"
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
   }
 }

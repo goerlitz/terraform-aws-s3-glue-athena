@@ -8,5 +8,5 @@
     "rootDir": "./src",
     "sourceMap": true
   },
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["node_modules", "**/*.spec.ts", "webpack.config.ts"]
 }
