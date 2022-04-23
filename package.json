@@ -1,7 +1,7 @@
 {
   "scripts": {
     "compile": "tsc",
-    "build": "tsc && cross-env TS_NODE_PROJECT=\"tsconfig.json\" webpack --config webpack.config.ts",
+    "build": "webpack",
     "deploy": "npm run build && npm run apply-lambdas",
     "plan-lambdas": "terraform -chdir=terraform/stage/services/lambdas plan",
     "apply-lambdas": "terraform -chdir=terraform/stage/services/lambdas apply"
@@ -22,13 +22,13 @@
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
-    "cross-env": "^7.0.3",
     "eslint": "^8.13.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^2.7.1",
     "eslint-plugin-import": "^2.26.0",
-    "prettier": "2.6.2",
+    "prettier": "^2.6.2",
+    "ts-loader": "^9.2.8",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.3",
     "webpack": "^5.72.0",
