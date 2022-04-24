@@ -1,34 +1,65 @@
-# Serverless Data Analysis on AWS
+# Dataset Management in the Cloud (AWS)
 
-**Goal:** Store CSV datasets in S3 and make them accessible through an API.
+---
+This project started with a simple goal: store datasets in the cloud and make the data accessible through an API.
 
-## Requirements
+The initial expectation was that this would take only a couple of days to implement. But it turned out to be much more complex as several cloud services need to be involved and a couple of design decisions had to be taken.
 
-* use serverless architecture to reduce costs (pay per use).
-* use infrastructure as code (IaC) to automate setup.
-* follow cloud best practices, like [AWS Well Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/framework/wellarchitected-framework.pdf)
-* industrial-strength setup with authentication, security and monitoring.
-* integrate with CI/CD.
+In addition, a couple of requirements should be fulfilled:
+- use serverless architecture to reduce costs (pay per use).
+- implement an industrial strength solution
+  - use infrastructure as code (IaC) to automate management of all cloud component.
+  - take care of security and maintainability aspects.
+  - follow cloud best practices, like [AWS Well Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/framework/wellarchitected-framework.pdf)
+  - integrate with CI/CD.
 
-## Infrastructure Overview
+## Technology Overview
 
-TODO: include graphic
+---
+TODO: include graphic with AWS components
 
-## Implementation Choices
+### Cloud Services ☁️
 
-* Terraform
-  * declarative definition of (multi-) cloud infrastructure.
-* S3 for storing the data (instead of data warehouse)
-  * S3 is cheap and we don't need a data warehouse for basic exploratory analysis.
-* Athena/Glue for queying data
-  * Athena can work directly on S3 data and integrates well with the serverless architecture. 
-* Lambda functions
-  * We only want to pay for actual requests executed on the data
-* API Gateway
-  * Make Lambda function available for client applications
+- **AWS S3** as cheap data storage.
+- **AWS Lambda** and **API Gateway** to access the datasets through an HTTP/REST interface.
+- **AWS DynamoDB** to store metadata about the datasets.
+- **AWS Glue** and **Athena** to query the datasets and compute statistics.
+- **AWS VPC** to secure services.
+- **AWS Cognito** for authentication.
 
-## Other Tools
+### Dev Tech & Tools 🛠️
 
-* [Checkov](https://github.com/bridgecrewio/checkov)
-* Github Actions
-* Auth0
+- **Terraform** and **Terragrunt** for Infrastructure as Code (IaC).
+- Lambda functions
+  - **Typescript** for increased development efficiency.
+  - **Eslint** + **Prettier** for JavaScript code styling.
+  - **Jest** for JavaScript testing.
+  - **Webpack** to create deployment packages for AWS lambda.
+- **GitHub Actions** for continuous integration and deployment (CI/CD).
+
+
+### Implementation Decisions 🔄
+
+- **Terraform/Terragrunt**: prefer declarative infrastructure definition, supports multiple cloud platforms.
+- **AWS S3**: it is cheap, and we don't need a data warehouse for basic data exploration and analysis.
+- **AWS Athena + Glue**: executes SQL queries directly on S3 data and integrates well with the serverless architecture.
+- **AWS Lambda**: only pay for actual requests on the data.
+- **AWS API Gateway**: also a core part of serverless application that make Lambda function available as HTTP/REST API.
+
+### Other Tools 🔨
+
+- [Checkov](https://github.com/bridgecrewio/checkov)
+
+## Prerequisites 🎨
+
+- AWS cli
+- terraform + terragrunt
+
+## Commands ⚙️
+
+* `npm run build` - compile all TypeScript files and create packaged JavaScript for deployment.
+* `npm run deploy` - build deployment package and upload to AWS lambda via terraform lambda configuration.
+
+## Run Checkov
+
+...
